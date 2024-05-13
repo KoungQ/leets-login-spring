@@ -1,11 +1,13 @@
 package leets.attendance.src.dto;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
-public class UserRequestDto {
+@Setter
+public class RegisterUserRequestDto {
 
-    private String id;
+    private String username;
     private String pwd;
     private String checkPwd;
     private String name;

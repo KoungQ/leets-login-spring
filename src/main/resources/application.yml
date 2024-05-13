@@ -13,4 +13,9 @@ spring:
         format_sql: true
         show-sql: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
+
+application:
+  security:
+    jwt:
+      secret: bcad30ae46b2275aca348cfe19cb0c164a88512f055613213f06fa2493c6c58f
