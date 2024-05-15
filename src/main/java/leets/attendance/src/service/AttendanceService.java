@@ -23,14 +23,15 @@ public class AttendanceService {
             LocalDate now = LocalDate.now();
             Attendance thisWeek = user.getAttendances()
                     .parallelStream()   // 아니면 stream() ?
-                    .filter(attendance -> attendance.getStartDate().isBefore(now))
-                    .filter(attendance -> attendance.getEndDate().isAfter(now))
+                    .filter(attendance -> attendance.getStartDate().isBefore(now.plusDays(1)))  // 데드라인에 겹치는 날짜도 포함하기 위해 ±1
+                    .filter(attendance -> attendance.getEndDate().isAfter(now.minusDays(1)))
                     .findFirst()
                     .orElseThrow(() -> new BaseException(DATABASE_ERROR));  // User 객체는 있지만 적절한 Attendance 객체가 없다면 데이터베이스 오류
 
             // 2. 출석 처리
             return thisWeek.attend();
         } catch (Exception e) {
+            e.printStackTrace();
             throw new BaseException(DATABASE_ERROR);
         }
     }

@@ -3,7 +3,6 @@ package leets.attendance.jwt;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import leets.attendance.src.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,11 +23,9 @@ import java.util.stream.Collectors;
 public class JwtTokenService {
 
     private final Key key;
-    private final UserRepository userRepository;
 
     // application.yml에서 secret 값 가져와서 key에 저장
-    public JwtTokenService(@Value("${application.security.jwt.secret}") String secretKey, UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public JwtTokenService(@Value("${application.security.jwt.secret}") String secretKey) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
@@ -68,13 +65,7 @@ public class JwtTokenService {
     public Authentication getAuthentication(String accessToken) {
         // Jwt 토큰 복호화
         Claims claims = parseClaims(accessToken);
-
-        if (claims.get("auth") == null) {
-            throw new RuntimeException("권한 정보가 없는 토큰입니다.");
-        }
-
-        // UserDetails 객체를 만들어서 Authentication return
-        // UserDetails: interface, User: UserDetails를 구현한 class
+        // GrantedAuthority를 설정해야 믿을만한 토큰으로 간주하여 임시로 USER라는 authority 넣음
         UserDetails principal = new User(claims.getSubject(), "", Collections.singleton(new SimpleGrantedAuthority("USER")));
         return new UsernamePasswordAuthenticationToken(principal, "", Collections.singleton(new SimpleGrantedAuthority("USER")));
     }
@@ -88,13 +79,13 @@ public class JwtTokenService {
                     .parseClaimsJws(token);
             return true;
         } catch (SecurityException | MalformedJwtException e) {
-            log.info("Invalid JWT Token", e);
+            log.info("유효하지 않은 토큰입니다.", e);
         } catch (ExpiredJwtException e) {
-            log.info("Expired JWT Token", e);
+            log.info("만료된 토큰입니다.", e);
         } catch (UnsupportedJwtException e) {
-            log.info("Unsupported JWT Token", e);
+            log.info("지원하지 않는 토큰입니다.", e);
         } catch (IllegalArgumentException e) {
-            log.info("JWT claims string is empty.", e);
+            log.info("비어있는 토큰입니다.", e);
         }
         return false;
     }

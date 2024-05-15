@@ -37,12 +37,13 @@ class BaseController {
      * 요청에 실패 시, JSON 형식으로 HTTP 응답을 생성하여 반환하는 메소드
      *
      * @param httpResponseStatus   HTTP 상태 코드
-     * @return ResponseEntity 객체, JSON 응답, HTTP 상태 코드
+     * @return JSON 응답, HTTP 상태 코드
      */
 
     public ResponseEntity<ResponseApiMessage> sendResponseHttpByJson(HttpResponseStatus httpResponseStatus) {
         ResponseApiMessage responseApiMessage = ResponseApiMessage.builder()
                 .httpResponseStatus(httpResponseStatus)
+                .message(httpResponseStatus.getMessage())
                 .build();
 
         HttpHeaders headers = new HttpHeaders();
